@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Elements of Programming Interviews. All rights reserved.
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -15,17 +13,40 @@ using std::vector;
 // @include
 class Queue {
  public:
-  Queue(size_t cap) : data_(cap) {}
+  Queue(size_t cap) : m_data(cap)  {}
 
   void Enqueue(int x) {
+      m_data[m_tail++] = x;
+      m_num_elements++;
+
+      if (m_num_elements >= m_data.size()/2) {
+          m_data.resize(m_data.size()*2);
+      }
+      if (m_tail >= m_data.size()) {
+          m_tail = 0;
+      }
   }
 
   int Dequeue() {
+      if (m_num_elements ==0) {
+          throw std::runtime_error("queue size is zero, do not dequeue!\n");
+      }
+      int output = m_data[m_head++];
+      m_num_elements--;
+      if (m_head >= m_data.size()) {
+          m_head = 0;
+      }
+      printf("output=%d\n",output);
+      return output;
   }
 
-  size_t size() const { return num_queue_elements; }
+  size_t size() const { return m_num_elements; }
 
  private:
+    vector<int> m_data;
+    int m_head = 0;
+    int m_tail = 0;
+    int m_num_elements = 0;
 };
 // @exclude
 
@@ -80,6 +101,7 @@ int main(int argc, char* argv[]) {
   assert(3 == q.Dequeue());
   assert(4 == q.Dequeue());
   try {
+    printf("size is %d\n", q.size());
     q.Dequeue();
   }
   catch (const exception& e) {
