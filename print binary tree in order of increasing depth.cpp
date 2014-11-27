@@ -26,7 +26,16 @@ unique_ptr<BinaryTreeNode<T>> left, right;
 void PrintBinaryTreeDepthOrder(const unique_ptr<BinaryTreeNode<int>>& root) {
     std::queue<  BinaryTreeNode<int> * > q;
     q.push(root.get() );
+    while (!q.empty()) {
+        BinaryTreeNode<int>* node = q.front();
+        q.pop();
+        if (!node) continue;
+        //one_line_result.push_back( node->data );
+        q.push(node->left.get());
+        q.push(node->right.get());
+    }
 
+    
 }
 // @exclude
 
