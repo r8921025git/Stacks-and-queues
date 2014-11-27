@@ -24,6 +24,8 @@ unique_ptr<BinaryTreeNode<T>> left, right;
 
 // @include
 void PrintBinaryTreeDepthOrder(const unique_ptr<BinaryTreeNode<int>>& root) {
+    std::queue<  BinaryTreeNode<int> * > q;
+    q.push(root.get() );
 
 }
 // @exclude
