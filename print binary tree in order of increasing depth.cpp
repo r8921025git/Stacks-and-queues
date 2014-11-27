@@ -1,87 +1,81 @@
-// Copyright (c) 2013 Elements of Programming Interviews. All rights reserved.
-
 #include <cassert>
 #include <iostream>
+#include <queue>
 #include <memory>
-#include <stack>
 #include <vector>
-
 
 
 using std::cout;
 using std::endl;
-using std::stack;
+using std::equal;
+using std::move;
+using std::queue;
 using std::unique_ptr;
 using std::vector;
 
-vector<int> result;
+vector<vector<int>> results;
+vector<int> one_line_result;
 
-// @include
 template <typename T>
-struct BSTNode {
+struct BinaryTreeNode {
 T data;
-unique_ptr<BSTNode<T>> left, right;
+unique_ptr<BinaryTreeNode<T>> left, right;
 };
 
 // @include
-void PrintBSTInSortedOrder(const unique_ptr<BSTNode<int>>& root) {
-  stack<const BSTNode<int>*> s;
-  const auto* curr = root.get();
+void PrintBinaryTreeDepthOrder(const unique_ptr<BinaryTreeNode<int>>& root) {
+  queue<BinaryTreeNode<int>*> processing_nodes;
+  processing_nodes.emplace(root.get());
+  size_t num_nodes_current_level = processing_nodes.size();
+  while (!processing_nodes.empty()) {
+    auto curr = processing_nodes.front();
+    processing_nodes.pop();
+    --num_nodes_current_level;
+    if (!curr) {
+      continue;
+    }
+    cout << curr->data << ' ';
+    // @exclude
+    one_line_result.emplace_back(curr->data);
+    // @include
 
-  while (!s.empty() || curr) {
-    if (curr) {
-      s.push(curr);
-      // @exclude
-      stack<const BSTNode<int>*> copy_s(s);
-      while (!copy_s.empty()) {
-        cout << copy_s.top()->data << ' ';
-        copy_s.pop();
-      }
+    // Defer the null checks to the null test above.
+    processing_nodes.emplace(curr->left.get());
+    processing_nodes.emplace(curr->right.get());
+    // Done with the nodes at the current depth.
+    if (!num_nodes_current_level) {
       cout << endl;
-      // @include
-      // Going left.
-      curr = curr->left.get();
-    } else {  
-      // Going up.
-      curr = s.top();
-      s.pop();
+      num_nodes_current_level = processing_nodes.size();
       // @exclude
-      stack<const BSTNode<int>*> copy_s(s);
-      while (!copy_s.empty()) {
-        cout << copy_s.top()->data << ' ';
-        copy_s.pop();
-      }
-      cout << endl;
+      results.emplace_back(move(one_line_result));
       // @include
-      cout << curr->data << endl;
-      // @exclude
-      result.emplace_back(curr->data);
-      // @include
-      // Going right.
-      curr = curr->right.get();
     }
   }
 }
 // @exclude
 
 int main(int argc, char* argv[]) {
-  //        43
-  //    23     47
-  //      37      53
-  //    29  41
-  //     31
-  unique_ptr<BSTNode<int>> root =
-      unique_ptr<BSTNode<int>>(new BSTNode<int>{43, nullptr});
-  root->left = unique_ptr<BSTNode<int>>(new BSTNode<int>{23, nullptr});
-  root->left->right = unique_ptr<BSTNode<int>>(new BSTNode<int>{37, nullptr});
-  root->left->right->left = unique_ptr<BSTNode<int>>(new BSTNode<int>{29, nullptr});
-  root->left->right->left->right = unique_ptr<BSTNode<int>>(new BSTNode<int>{31, nullptr});
-  root->left->right->right = unique_ptr<BSTNode<int>>(new BSTNode<int>{41, nullptr});
-  root->right = unique_ptr<BSTNode<int>>(new BSTNode<int>{47, nullptr});
-  root->right->right = unique_ptr<BSTNode<int>>(new BSTNode<int>{53, nullptr});
-  PrintBSTInSortedOrder(root);
-  vector<int> golden_res = {23, 29, 31, 37, 41, 43, 47, 53};
-  assert(golden_res.size() == result.size());
-  assert(equal(golden_res.begin(), golden_res.end(), result.begin()));
+  //      3
+  //    2   5
+  //  1    4 6
+  unique_ptr<BinaryTreeNode<int>> root = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{3, nullptr, nullptr});
+  root->left = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{2, nullptr, nullptr});
+  root->left->left = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{1, nullptr, nullptr});
+  root->right = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{5, nullptr, nullptr});
+  root->right->left = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{4, nullptr, nullptr});
+  root->right->right = unique_ptr<BinaryTreeNode<int>>(
+      new BinaryTreeNode<int>{6, nullptr, nullptr});
+  // should output 3
+  //               2 5
+  //               1 4 6
+  PrintBinaryTreeDepthOrder(root);
+  vector<vector<int>> golden_res = {{3}, {2, 5}, {1, 4, 6}};
+  assert(golden_res.size() == results.size() &&
+         equal(golden_res.begin(), golden_res.end(), results.begin()));
   return 0;
 }
