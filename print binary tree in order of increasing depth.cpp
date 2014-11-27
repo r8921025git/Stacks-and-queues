@@ -24,33 +24,7 @@ unique_ptr<BinaryTreeNode<T>> left, right;
 
 // @include
 void PrintBinaryTreeDepthOrder(const unique_ptr<BinaryTreeNode<int>>& root) {
-  queue<BinaryTreeNode<int>*> processing_nodes;
-  processing_nodes.emplace(root.get());
-  size_t num_nodes_current_level = processing_nodes.size();
-  while (!processing_nodes.empty()) {
-    auto curr = processing_nodes.front();
-    processing_nodes.pop();
-    --num_nodes_current_level;
-    if (!curr) {
-      continue;
-    }
-    cout << curr->data << ' ';
-    // @exclude
-    one_line_result.emplace_back(curr->data);
-    // @include
 
-    // Defer the null checks to the null test above.
-    processing_nodes.emplace(curr->left.get());
-    processing_nodes.emplace(curr->right.get());
-    // Done with the nodes at the current depth.
-    if (!num_nodes_current_level) {
-      cout << endl;
-      num_nodes_current_level = processing_nodes.size();
-      // @exclude
-      results.emplace_back(move(one_line_result));
-      // @include
-    }
-  }
 }
 // @exclude
 
